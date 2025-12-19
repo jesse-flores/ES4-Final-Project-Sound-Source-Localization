@@ -1,0 +1,18 @@
+# clock lines
+set_io mic_lrclk 42 #Orange
+set_io mic_bclk 38 #Yellow
+
+# Mic data lines
+set_io micA_dout 36
+set_io micB_dout 43
+set_io micC_dout 37
+
+# Copmass LEDs
+set_io led_N 6
+set_io led_NE 9
+set_io led_E 11
+set_io led_SE 18
+set_io led_S 19
+set_io led_SW 13
+set_io led_W 45
+set_io led_NW 3
