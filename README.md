@@ -92,10 +92,10 @@ Delays are calculated between A - B and A - C pairs, then compared against expec
 ## Module Descriptions
 
 ### `cgen.sv`
-Clock generation module. It takes the 12 MHz system clock (divided down from the internal 48 MHz oscillator) and generates the I2S clocks:
+Clock generation module. We're working with an internal 48 MHz oscillator we described as the internal clock. We divide this down to reach a smaller clock such as 12 MHz to generate the I2S clocks:
 
-- BCLK: 3 MHz (12 MHz / 4)
-- LRCLK: 46.875 kHz (12 MHz / 256)
+- BCLK: 3 MHz
+- LRCLK: 46.875 kHz
 
 ### `i2s_mic_rx.sv`
 I2S receiver module for each microphone.
