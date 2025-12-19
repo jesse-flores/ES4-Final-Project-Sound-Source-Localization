@@ -136,7 +136,7 @@ Python script for generating expected TDOA values.
 
 **Team Members**: Jesse Flores, Dagbegnon Amouzou, Vicky Lin, Carlos Tierra 
 
-**AI Assistance**: ChatGPT was used for Python script generation and math verification; Gemini was used for troubleshooting and Verilog optimization.
+**AI Assistance**: ChatGPT was used for Python script generation and math verification.
 
 
 ## Additional Documentation
