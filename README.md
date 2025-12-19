@@ -135,9 +135,14 @@ Python script for generating expected TDOA values.
 ## Credits
 
 **Team Members**: Jesse Flores, Dagbegnon Amouzou, Vicky Lin, Carlos Tierra 
-
 **AI Assistance**: ChatGPT was used for Python script generation and math verification.
 
+## References & Resources
+Due to the multidisciplinary scope of this project, several external resources were consulted:
+
+- **DSP Theory**: The Scientist and Engineer's Guide to Digital Signal Processing (Steven W. Smith) was referenced for cross-correlation and filter design concepts.
+- **FPGA Design**: Various technical documentation and forums regarding SystemVerilog best practices, specifically for handling Clock Domain Crossing (CDC) and timing constraints.
+- **Concepts**: Educational engineering channels (YouTube) were utilized to visualize high-level signal processing and acoustic physics concepts.
 
 ## Additional Documentation
 
