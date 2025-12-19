@@ -1,46 +1,144 @@
-# ES4-Final-Project-Sound-Source-Localization
+# ES4 Final Project: Sound Source Localization
+
 This project implements a real-time acoustic direction-finding system that determines the compass direction of a sound source using three I2S MEMS microphones connected to an FPGA. The system displays the detected direction on eight LEDs representing the cardinal and intercardinal compass directions (N, NE, E, SE, S, SW, W, NW).
 
-ChatGPT was used in developing python script and math (gemini in troubleshooting) as well as idea to make circular buffer work.
+## Features
 
-Additional documentation can be found here: (ADD LINK LATER)
+- Real-time sound source localization using Time Difference of Arrival (TDOA) algorithm
+- Three I2S MEMS microphones for accurate triangulation
+- 8-directional LED compass display
+- FPGA-based implementation for low-latency processing
+- Automated ROM generation for expected delay values
 
-![](diagram.jpeg "Block Diagram")
+## Hardware Requirements
 
-Hardware:
+- **FPGA Board**: iCE40UP5K (Upduino 3.0)
+- **Microphones**: 3x I2S MEMS Microphones
+- **LEDs**: 8x LEDs for compass directions
+- **Connections**: Appropriate wiring for I2S data lines and LED outputs
 
-iCE40UP5K (Upduino 3.0)
+### Hardware Images
 
-![](pico_ice_front.jpg "iCE40UP5K front")
-![](pico_ice_back.jpg "iCE40UP5K back")
+![iCE40UP5K Front](pico_ice_front.jpg)
+![iCE40UP5K Back](pico_ice_back.jpg)
+![I2S MEMS Microphone](I2SMEM.png)
 
-I2S MEMS Microphone
+## Software Requirements
 
-![](I2SMEM.png "iCE40UP5K back")
+- **Apio**: FPGA development
+- **Python 3.x**: For ROM generation script
+- **NumPy**: Required for mathematical calculations in ROM generation within Python script
+
+## Setup and Installation
+
+1. Install Apio:
+   ```bash
+   pip install apio
+   ```
+
+2. Install required Python packages:
+   ```bash
+   pip install numpy
+   ```
+
+3. Clone or download this repository.
+
+## Building and Programming
+
+1. Navigate to the project directory:
+   ```bash
+   cd 8LEDs
+   ```
+
+2. Generate the ROM data (according to specific microphone setup):
+   ```bash
+   python ROM_gen.py
+   ```
+   This generates expected TDOA values for different compass directions.
+
+3. Build the project:
+   ```bash
+   apio build
+   ```
+
+4. Program the FPGA:
+   ```bash
+   apio upload
+   ```
+
+## Usage
+
+Once programmed, the FPGA will continuously:
+
+1. Sample audio from the three microphones
+2. Calculate time delays between microphone pairs using TDOA
+3. Determine the most likely sound source direction
+4. Light the corresponding LED on the compass display
+
+The system operates in real-time, updating the direction display as the sound source moves.
+
+## System Architecture
+
+The system uses a Time Difference of Arrival (TDOA) approach:
+
+- **Microphone A**: Reference microphone
+- **Microphone B**: Second microphone for AB delay calculation
+- **Microphone C**: Third microphone for AC delay calculation
+
+Delays are calculated between A - B and A - C pairs, then compared against expected values for each compass direction.
+
+![Block Diagram](diagram.jpeg)
+
+## Module Descriptions
+
+### `cgen.sv`
+Clock generation module. It takes the 12 MHz system clock (divided down from the internal 48 MHz oscillator) and generates the I2S clocks:
+
+- BCLK: 3 MHz (12 MHz / 4)
+- LRCLK: 46.875 kHz (12 MHz / 256)
+
+### `i2s_mic_rx.sv`
+I2S receiver module for each microphone.
+
+- Receives 32-bit I2S data on each LRCLK cycle
+- Filters out DC bias from audio samples
+- Outputs 16-bit signed audio data with validity flag
+
+### `tdoa_stream.sv`
+Time Difference of Arrival calculation module.
+
+- Maintains circular buffers for reference and target audio samples
+- Compresses audio to 4-bit (Sign + 3 MSB) to save FPGA resources
+- Uses cross-correlation to find the lag (delay) that maximizes signal similarity
+
+### `compass_solver.sv`
+Direction determination logic.
+
+- Compares measured delays against a pre-computed lookup table
+- Calculates error scores for each of the 8 compass directions
+- Applies score decay and bonuses to ensure stable LED output
+
+### `top.sv`
+Main system integration module.
+
+- Instantiates the oscillator (SB_HFOSC) and all submodules
+- Handles synchronization between microphone data streams
+- Manages data flow from microphones to LED outputs
+
+### `ROM_gen.py`
+Python script for generating expected TDOA values.
+
+- Models the physical coordinates of the microphones
+- Calculates theoretical sample delays for sound sources at 8 cardinal directions
+- Outputs Verilog code for the compass_solver lookup table
+
+## Credits
+
+**Team Members**: Jesse Flores, Dagbegnon Amouzou, Vicky Lin, Carlos Tierra 
+
+**AI Assistance**: ChatGPT was used for Python script generation and math verification; Gemini was used for troubleshooting and Verilog optimization.
 
 
-Brief Module Overviews:
+## Additional Documentation
 
-cgen.sv: Takes in the internal 48 MHz clock and uses it to generate two clocks, the lrclk and bclk. This module increments the value of a counter by one every clock cycle. The lrclk and bclk are generated by selecting a specifc bit on the counter.  The lrclk is high when the 9th bit of the counter is high and the 4th bit of the counter is high, the bclk is high. Doing this, the blck now has a generated frequency of about 3MHz and the lrclk a frequency of 46.875 KHz.
-
-
-i2s_mic_rx.sv: This module takes in all three clocks as well as one bit inputs from the i2s microphone. On the rising edge of the bitclock a new value is read in from the microphone and is stored inside of a shift register. When all 32 bits have been read from the microphone, the audio sample is filtered to get rid of dc bias in the audio.
-
-tdoa_stream.sv: Takes in the clock along with a reference and target audio sample. This module takes the 4 most significant bits of each of th samples and stores them in a buffer of references and target audio samples respectively. Utilizing various states, data data is collected to populate the buffers. From here, the best lag value is found and outputted (NOT FINISHED)
-
-Compass_solver.sv: Takes in the delays for each mic and utlizes them in a look up table for the expected values. The expected values are then compared to the actual delays in order to calculate a difference. From here each LED has a score calculated and asssociated to it. The LED with the highest score is  given a digital high indicating that it should turn on.
-
-Top,sv: The main file. Calls instances of the previous classes in order to collect and process data from the microphones in order to locate the direction of sound.  
-
-
-
-
-
-
-
-
-
-
-
-
-
+Additional documentation can be found here: [Final Report](https://drive.google.com/file/d/1eM54u9z0JAbJ3aeXFwQRu_ESW7j4bbJ0/view?usp=sharing)
