@@ -47,7 +47,7 @@ This project implements a real-time acoustic direction-finding system that deter
 
 1. Navigate to the project directory:
    ```bash
-   cd 8LEDs
+   cd ES4-Final-Project-Sound-Source-Localization
    ```
 
 2. Generate the ROM data (according to specific microphone setup):
